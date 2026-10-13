@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Production builds
+dist/
+client/dist/
+
+# Local Database & Video Uploads (prevent pushing huge 1GB videos to Git)
+server/data/*.db
+server/data/*.db-wal
+server/data/*.db-shm
+server/uploads/*.mp4
+server/uploads/*.mkv
+server/uploads/*.webm
+server/uploads/*.avi
+!server/uploads/.gitkeep
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Vercel & IDE
+.vercel/
+.vscode/
+.idea/
+*.log
