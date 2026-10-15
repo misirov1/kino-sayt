@@ -107,3 +107,4 @@ Tizimga kirish ("Kirish" tugmasi) oynasida "Tezkor sinov akkauntlari" mavjud:
 * **Backend**: Node.js, Express.js, Socket.IO.
 * **Database**: SQLite (better-sqlite3) — yuqori tezlikdagi WAL rejimi, xavfsiz tranzaksiyalar.
 * **Xavfsizlik**: JWT tokenlar, bcrypt parollarni heshlash, Role-based route himoyasi, XSS/sanitizatsiya.
+# kino-sayt
