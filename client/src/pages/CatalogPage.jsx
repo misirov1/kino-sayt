@@ -4,10 +4,12 @@ import MovieCard from '../components/movie/MovieCard';
 import { apiFetch } from '../utils/api';
 import { Search, Filter, SlidersHorizontal, Film } from 'lucide-react';
 
+import { FALLBACK_MOVIES } from '../data/fallbackMovies';
+
 export default function CatalogPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [movies, setMovies] = useState([]);
-  const [total, setTotal] = useState(0);
+  const [movies, setMovies] = useState(FALLBACK_MOVIES);
+  const [total, setTotal] = useState(FALLBACK_MOVIES.length);
   const [loading, setLoading] = useState(true);
 
   // Filter states
@@ -63,10 +65,13 @@ export default function CatalogPage() {
         });
 
         const data = await apiFetch(`/movies?${queryParams.toString()}`);
-        setMovies(data.movies || []);
-        setTotal(data.total || 0);
+        const list = Array.isArray(data?.movies) ? data.movies : (Array.isArray(data) ? data : FALLBACK_MOVIES);
+        setMovies(list.length > 0 ? list : FALLBACK_MOVIES);
+        setTotal(data?.total || list.length);
       } catch (err) {
-        console.error(err);
+        console.warn('Catalog fallback activated:', err);
+        setMovies(FALLBACK_MOVIES);
+        setTotal(FALLBACK_MOVIES.length);
       } finally {
         setLoading(false);
       }

@@ -11,6 +11,8 @@ import {
   Calendar, Shield, Film, Eye, X 
 } from 'lucide-react';
 
+import { FALLBACK_MOVIES } from '../data/fallbackMovies';
+
 export default function MovieDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -28,9 +30,11 @@ export default function MovieDetailPage() {
       try {
         const data = await apiFetch(`/movies/${id}`);
         setMovie(data);
-        setIsFavorite(data.isFavorite || false);
+        setIsFavorite(data?.isFavorite || false);
       } catch (err) {
-        showToast(err.message, 'error');
+        console.warn('Movie detail offline fallback:', err.message);
+        const fb = FALLBACK_MOVIES.find(m => m.id === id) || FALLBACK_MOVIES[0];
+        setMovie(fb);
       } finally {
         setLoading(false);
       }

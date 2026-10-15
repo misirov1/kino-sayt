@@ -11,15 +11,17 @@ export default function MovieHero({ movies = [] }) {
   const { showToast } = useNotification();
   const navigate = useNavigate();
 
+  const safeMovies = Array.isArray(movies) ? movies : [];
+
   useEffect(() => {
-    if (movies.length <= 1) return;
+    if (safeMovies.length <= 1) return;
     const interval = setInterval(() => {
-      setCurrentIndex(prev => (prev + 1) % movies.length);
+      setCurrentIndex(prev => (prev + 1) % safeMovies.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, [movies.length]);
+  }, [safeMovies.length]);
 
-  if (!movies || movies.length === 0) {
+  if (safeMovies.length === 0) {
     return (
       <div className="relative w-full h-[50vh] min-h-[380px] flex items-center justify-center bg-gradient-to-b from-red-950/30 via-zinc-950 to-zinc-950 border-b border-zinc-800 p-6 text-center">
         <div className="max-w-2xl space-y-4">
@@ -53,7 +55,8 @@ export default function MovieHero({ movies = [] }) {
     );
   }
 
-  const movie = movies[currentIndex] || movies[0];
+  const movie = safeMovies[currentIndex] || safeMovies[0];
+  if (!movie) return null;
 
   const handleStartRoom = async () => {
     try {

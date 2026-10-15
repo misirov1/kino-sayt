@@ -1,0 +1,42 @@
+export const FALLBACK_MOVIES = [
+  {
+    id: 'mov_jannat_01',
+    title: 'Jannat onalar oyogʻi ostida',
+    originalTitle: 'Jannat onalar oyogʻi ostida (Primyera)',
+    description: 'Bosh qahramon onasining eng katta orzusi — haj ziyoratini ado etish uchun uni aravachada Makka shahriga olib borishga ahd qiladi. O‘ta ta’sirli, mehr va oqibat haqidagi film.',
+    poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1920&q=80',
+    videoUrl: '',
+    trailerUrl: '',
+    genre: 'Drama, Oila',
+    category: 'Yangi kinolar',
+    year: 2024,
+    duration: '2 soat 10 daqiqa',
+    rating: 5.0,
+    ratingCount: 1420,
+    quality: '1080p Full HD',
+    language: 'O‘zbekcha',
+    isFeatured: 1,
+    isApproved: 1
+  },
+  {
+    id: 'mov_abdulla_02',
+    title: 'Abdullajon',
+    originalTitle: 'Abdullajon yoxud Graff Monte-Kristo',
+    description: 'O‘zbek kinosining oltin durdonasi. Qishloqqa o‘zga sayyoralik bola tushib qoladi va unga Abdullajon deb nom berishadi. Ajoyib mo‘jizalar va samimiy qishloq hayoti.',
+    poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80',
+    backdrop: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80',
+    videoUrl: '',
+    trailerUrl: '',
+    genre: 'Komediya, Fantastika',
+    category: 'O‘zbek kinolari',
+    year: 1991,
+    duration: '1 soat 28 daqiqa',
+    rating: 5.0,
+    ratingCount: 2310,
+    quality: '1080p Full HD',
+    language: 'O‘zbekcha',
+    isFeatured: 1,
+    isApproved: 1
+  }
+];

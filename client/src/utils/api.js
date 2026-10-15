@@ -23,7 +23,12 @@ export async function apiFetch(endpoint, options = {}) {
 
   try {
     const res = await fetch(`${API_BASE}${endpoint}`, config);
-    const data = await res.json().catch(() => ({}));
+    const contentType = res.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      throw new Error(`API server javob bermadi (${res.status} HTML)`);
+    }
+
+    const data = await res.json();
 
     if (!res.ok) {
       const errorMsg = data.error || data.message || `Xatolik: ${res.status}`;
@@ -32,7 +37,7 @@ export async function apiFetch(endpoint, options = {}) {
 
     return data;
   } catch (err) {
-    console.error(`API Fetch Error (${endpoint}):`, err);
+    console.warn(`API Fetch Error (${endpoint}):`, err.message);
     throw err;
   }
 }

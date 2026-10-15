@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import MovieHero from '../components/movie/MovieHero';
 import MovieCard from '../components/movie/MovieCard';
 import { apiFetch } from '../utils/api';
+import { FALLBACK_MOVIES } from '../data/fallbackMovies';
 import { Users, Sparkles, TrendingUp, Compass, Film, Flame, Play } from 'lucide-react';
 
 export default function HomePage() {
-  const [featuredMovies, setFeaturedMovies] = useState([]);
+  const [featuredMovies, setFeaturedMovies] = useState(FALLBACK_MOVIES);
   const [activeRooms, setActiveRooms] = useState([]);
-  const [rails, setRails] = useState({});
+  const [rails, setRails] = useState({ 'Yangi kinolar': FALLBACK_MOVIES });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -16,15 +17,23 @@ export default function HomePage() {
     async function loadHomeData() {
       try {
         const [feat, active, railsData] = await Promise.all([
-          apiFetch('/movies/featured'),
-          apiFetch('/rooms/active'),
-          apiFetch('/movies/rails')
+          apiFetch('/movies/featured').catch(() => null),
+          apiFetch('/rooms/active').catch(() => null),
+          apiFetch('/movies/rails').catch(() => null)
         ]);
-        setFeaturedMovies(feat || []);
-        setActiveRooms(active || []);
-        setRails(railsData || {});
+
+        const validFeat = Array.isArray(feat) && feat.length > 0 ? feat : FALLBACK_MOVIES;
+        setFeaturedMovies(validFeat);
+        setActiveRooms(Array.isArray(active) ? active : []);
+
+        const validRails = (typeof railsData === 'object' && railsData !== null && !Array.isArray(railsData) && Object.keys(railsData).length > 0)
+          ? railsData
+          : { 'Yangi kinolar': FALLBACK_MOVIES, 'Mashhur kinolar': FALLBACK_MOVIES };
+        setRails(validRails);
       } catch (err) {
-        console.error('Home load error:', err);
+        console.warn('Home load fallback activated:', err);
+        setFeaturedMovies(FALLBACK_MOVIES);
+        setRails({ 'Yangi kinolar': FALLBACK_MOVIES });
       } finally {
         setLoading(false);
       }
@@ -140,7 +149,7 @@ export default function HomePage() {
 
         {/* Categories Movie Rails */}
         {Object.entries(rails).map(([categoryName, movies]) => {
-          if (!movies || movies.length === 0) return null;
+          if (!Array.isArray(movies) || movies.length === 0) return null;
           return (
             <section key={categoryName} className="space-y-4">
               <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3">
