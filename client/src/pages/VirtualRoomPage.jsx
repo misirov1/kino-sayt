@@ -5,6 +5,8 @@ import { useAuth } from '../context/AuthContext';
 import VirtualCinemaRoom from '../components/room/VirtualCinemaRoom';
 import { AlertCircle, Film, ArrowLeft, Users, Shield } from 'lucide-react';
 
+import { getFallbackOrLocalRoom } from '../utils/roomHelper';
+
 export default function VirtualRoomPage() {
   const { id } = useParams();
   const { user } = useAuth();
@@ -15,17 +17,25 @@ export default function VirtualRoomPage() {
   useEffect(() => {
     async function loadRoom() {
       setLoading(true);
+      setError(null);
+      const roomId = id || 'KINO-VIP';
       try {
-        const data = await apiFetch(`/rooms/${id}`);
-        setRoom(data);
+        const data = await apiFetch(`/rooms/${roomId}`);
+        if (data && data.id) {
+          setRoom(data);
+          return;
+        }
+        throw new Error('Xona topilmadi');
       } catch (err) {
-        setError(err.message);
+        console.warn('Backend room fetch unavailable, loading room fallback:', err);
+        const fallback = getFallbackOrLocalRoom(roomId, user);
+        setRoom(fallback);
       } finally {
         setLoading(false);
       }
     }
     loadRoom();
-  }, [id]);
+  }, [id, user]);
 
   if (loading) {
     return (

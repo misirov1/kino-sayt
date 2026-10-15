@@ -4,11 +4,12 @@ import MovieHero from '../components/movie/MovieHero';
 import MovieCard from '../components/movie/MovieCard';
 import { apiFetch } from '../utils/api';
 import { FALLBACK_MOVIES } from '../data/fallbackMovies';
+import { FALLBACK_ACTIVE_ROOMS } from '../utils/roomHelper';
 import { Users, Sparkles, TrendingUp, Compass, Film, Flame, Play } from 'lucide-react';
 
 export default function HomePage() {
   const [featuredMovies, setFeaturedMovies] = useState(FALLBACK_MOVIES);
-  const [activeRooms, setActiveRooms] = useState([]);
+  const [activeRooms, setActiveRooms] = useState(FALLBACK_ACTIVE_ROOMS);
   const [rails, setRails] = useState({ 'Yangi kinolar': FALLBACK_MOVIES });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ export default function HomePage() {
 
         const validFeat = Array.isArray(feat) && feat.length > 0 ? feat : FALLBACK_MOVIES;
         setFeaturedMovies(validFeat);
-        setActiveRooms(Array.isArray(active) ? active : []);
+        setActiveRooms(Array.isArray(active) && active.length > 0 ? active : FALLBACK_ACTIVE_ROOMS);
 
         const validRails = (typeof railsData === 'object' && railsData !== null && !Array.isArray(railsData) && Object.keys(railsData).length > 0)
           ? railsData
@@ -33,6 +34,7 @@ export default function HomePage() {
       } catch (err) {
         console.warn('Home load fallback activated:', err);
         setFeaturedMovies(FALLBACK_MOVIES);
+        setActiveRooms(FALLBACK_ACTIVE_ROOMS);
         setRails({ 'Yangi kinolar': FALLBACK_MOVIES });
       } finally {
         setLoading(false);

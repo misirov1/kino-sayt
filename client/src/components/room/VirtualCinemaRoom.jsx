@@ -24,8 +24,30 @@ export default function VirtualCinemaRoom({ room, movie }) {
   const { showToast } = useNotification();
   const socket = getSocket();
 
+  const activeUser = user || {
+    id: 'usr_guest_' + (localStorage.getItem('kinoverse_guest_id') || Math.random().toString(36).slice(2, 8)),
+    name: 'Mehmon',
+    username: 'mehmon',
+    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+    role: 'user'
+  };
+
   // Room state
-  const [members, setMembers] = useState(room.members || []);
+  const [members, setMembers] = useState(() => {
+    if (Array.isArray(room.members) && room.members.length > 0) {
+      return room.members;
+    }
+    return [
+      {
+        userId: activeUser.id,
+        name: activeUser.name,
+        avatar: activeUser.avatar,
+        seatIndex: 0,
+        isHost: true,
+        joinedAt: Date.now()
+      }
+    ];
+  });
   const [mySeatIndex, setMySeatIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(room.isPlaying === 1);
   const [currentTime, setCurrentTime] = useState(room.currentTime || 0);
@@ -35,8 +57,8 @@ export default function VirtualCinemaRoom({ room, movie }) {
   const [roomError, setRoomError] = useState(null);
 
   // Local device video override state
-  const [currentVideoSrc, setCurrentVideoSrc] = useState(movie.videoUrl);
-  const [currentVideoTitle, setCurrentVideoTitle] = useState(movie.title);
+  const [currentVideoSrc, setCurrentVideoSrc] = useState(movie.videoUrl || '');
+  const [currentVideoTitle, setCurrentVideoTitle] = useState(movie.title || '');
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const localFileInputRef = useRef(null);
 
@@ -45,22 +67,75 @@ export default function VirtualCinemaRoom({ room, movie }) {
 
   const roomContainerRef = useRef(null);
 
-  const activeUser = user;
+  // Initial local entrance animation
+  useEffect(() => {
+    const targetSeat = SEAT_TARGETS[mySeatIndex] || SEAT_TARGETS[0];
+    const initialAnims = {};
+    members.forEach(m => {
+      if (m.userId === activeUser.id) {
+        initialAnims[m.userId] = {
+          state: 'walking',
+          x: 8,
+          y: 64,
+          targetX: targetSeat.x,
+          targetY: targetSeat.y
+        };
+      } else {
+        const target = SEAT_TARGETS[m.seatIndex] || SEAT_TARGETS[0];
+        initialAnims[m.userId] = {
+          state: 'seated',
+          x: target.x,
+          y: target.y
+        };
+      }
+    });
+    setAvatarAnimations(initialAnims);
+
+    const t1 = setTimeout(() => {
+      setAvatarAnimations(prev => ({
+        ...prev,
+        [activeUser.id]: {
+          ...prev[activeUser.id],
+          state: 'walking_active',
+          x: targetSeat.x,
+          y: targetSeat.y
+        }
+      }));
+    }, 200);
+
+    const t2 = setTimeout(() => {
+      setAvatarAnimations(prev => ({
+        ...prev,
+        [activeUser.id]: {
+          state: 'seated',
+          x: targetSeat.x,
+          y: targetSeat.y
+        }
+      }));
+    }, 1800);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [room?.id, activeUser.id]);
 
   // Join Room & Socket Listeners
   useEffect(() => {
     if (!room) return;
 
-    socket.emit('join_room', {
-      roomId: room.id,
-      user: {
-        id: activeUser.id,
-        name: activeUser.name,
-        username: activeUser.username,
-        avatar: activeUser.avatar,
-        role: activeUser.role
-      }
-    });
+    try {
+      socket.emit('join_room', {
+        roomId: room.id,
+        user: {
+          id: activeUser.id,
+          name: activeUser.name,
+          username: activeUser.username,
+          avatar: activeUser.avatar,
+          role: activeUser.role
+        }
+      });
+    } catch (e) {}
 
     const handleRoomState = (data) => {
       setMembers(data.members || []);
@@ -302,11 +377,23 @@ export default function VirtualCinemaRoom({ room, movie }) {
   };
 
   const handleSendReaction = (emoji) => {
-    socket.emit('room_reaction', {
-      roomId: room.id,
-      emoji,
-      seatIndex: mySeatIndex
-    });
+    const id = Date.now() + Math.random();
+    const targetSeat = SEAT_TARGETS[mySeatIndex] || SEAT_TARGETS[0];
+    setActiveReactions(prev => [
+      ...prev,
+      { id, emoji, userName: activeUser?.name || 'Siz', x: targetSeat.x }
+    ]);
+    setTimeout(() => {
+      setActiveReactions(prev => prev.filter(r => r.id !== id));
+    }, 3000);
+
+    try {
+      socket.emit('room_reaction', {
+        roomId: room.id,
+        emoji,
+        seatIndex: mySeatIndex
+      });
+    } catch (e) {}
   };
 
   // Auto-delete movie when playback completes
@@ -488,20 +575,41 @@ export default function VirtualCinemaRoom({ room, movie }) {
 
                 {/* Aspect Ratio Video Container */}
                 <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-                  <VideoPlayer
-                    src={currentVideoSrc}
-                    poster={movie.backdrop}
-                    title={currentVideoTitle || movie.title}
-                    isSynced={true}
-                    externalIsPlaying={isPlaying}
-                    externalTime={currentTime}
-                    onPlay={handleLocalPlay}
-                    onPause={handleLocalPause}
-                    onSeek={handleLocalSeek}
-                    onEnded={handleVideoEnded}
-                    isFullscreen={false}
-                    onToggleFullscreen={toggleFullscreen}
-                  />
+                  {currentVideoSrc ? (
+                    <VideoPlayer
+                      src={currentVideoSrc}
+                      poster={movie.backdrop}
+                      title={currentVideoTitle || movie.title}
+                      isSynced={true}
+                      externalIsPlaying={isPlaying}
+                      externalTime={currentTime}
+                      onPlay={handleLocalPlay}
+                      onPause={handleLocalPause}
+                      onSeek={handleLocalSeek}
+                      onEnded={handleVideoEnded}
+                      isFullscreen={false}
+                      onToggleFullscreen={toggleFullscreen}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-zinc-900 to-black select-none">
+                      <div className="w-14 h-14 rounded-2xl bg-red-600/20 border border-red-500/40 text-red-500 flex items-center justify-center mb-3 shadow-lg">
+                        <FolderUp className="w-7 h-7" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-white mb-1">
+                        Video tanlanmagan
+                      </h3>
+                      <p className="text-xs text-zinc-400 max-w-sm mb-4 leading-relaxed">
+                        Kompyuter yoki telefoningizdagi video faylni tanlang (MP4, MKV, WebM) va virtual zalda birga tomosha qiling!
+                      </p>
+                      <button
+                        onClick={() => localFileInputRef.current?.click()}
+                        className="flex items-center gap-2 bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white text-xs font-black py-2.5 px-5 rounded-xl shadow-xl transition-all cursor-pointer active:scale-95"
+                      >
+                        <FolderUp className="w-4 h-4" />
+                        <span>Qurilmadan video tanlash</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

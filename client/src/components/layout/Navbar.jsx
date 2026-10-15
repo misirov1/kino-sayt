@@ -144,6 +144,18 @@ export default function Navbar() {
             Kinolar
           </Link>
           <Link
+            to="/room/KINO-VIP"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              location.pathname.startsWith('/room')
+                ? 'bg-red-600 text-white shadow-md'
+                : 'bg-red-950/60 hover:bg-red-900/80 text-red-300 hover:text-white border border-red-800/60'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
+            <Users className="w-3.5 h-3.5" />
+            <span>Virtual Zal</span>
+          </Link>
+          <Link
             to="/movies?sort=popular"
             className={`px-3 py-1.5 rounded-lg hover:text-white transition-colors ${
               location.search.includes('popular') ? 'text-red-500 font-semibold' : ''
@@ -459,6 +471,10 @@ export default function Navbar() {
           <div className="flex flex-col gap-1 text-sm font-medium text-zinc-300">
             <Link to="/" className="px-3 py-2 rounded-lg hover:bg-zinc-900">Bosh sahifa</Link>
             <Link to="/movies" className="px-3 py-2 rounded-lg hover:bg-zinc-900">Kinolar katalogi</Link>
+            <Link to="/room/KINO-VIP" className="px-3 py-2 rounded-lg hover:bg-zinc-900 text-red-400 font-bold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping inline-block" />
+              <span>Virtual Zal</span>
+            </Link>
             <Link to="/movies?sort=popular" className="px-3 py-2 rounded-lg hover:bg-zinc-900">Mashhur kinolar</Link>
             <Link to="/movies?sort=newest" className="px-3 py-2 rounded-lg hover:bg-zinc-900">Yangi qo‘shilganlar</Link>
             {user && (

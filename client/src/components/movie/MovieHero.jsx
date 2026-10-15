@@ -4,6 +4,7 @@ import { Play, Info, Star, ChevronLeft, ChevronRight, Users, Sparkles, Film } fr
 import { useAuth } from '../../context/AuthContext';
 import { apiFetch } from '../../utils/api';
 import { useNotification } from '../../context/NotificationContext';
+import { startOrJoinRoom } from '../../utils/roomHelper';
 
 export default function MovieHero({ movies = [] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,13 +64,10 @@ export default function MovieHero({ movies = [] }) {
       if (!user) {
         await loginGuest();
       }
-      const res = await apiFetch('/rooms/create', {
-        method: 'POST',
-        body: { movieId: movie.id }
-      });
-      navigate(`/room/${res.roomId}`);
+      await startOrJoinRoom(movie, user, navigate);
     } catch (err) {
-      showToast(err.message, 'error');
+      console.warn('Hero room start error:', err);
+      navigate(`/room/KINO-VIP`);
     }
   };
 

@@ -36,6 +36,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/movies" element={<CatalogPage />} />
           <Route path="/movie/:id" element={<MovieDetailPage />} />
+          <Route path="/room" element={<VirtualRoomPage />} />
           <Route path="/room/:id" element={<VirtualRoomPage />} />
           <Route path="/upload" element={<UploadMoviePage />} />
           <Route path="/profile" element={<ProfilePage />} />

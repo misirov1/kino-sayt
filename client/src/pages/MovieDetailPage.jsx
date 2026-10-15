@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 import { FALLBACK_MOVIES } from '../data/fallbackMovies';
+import { startOrJoinRoom } from '../utils/roomHelper';
 
 export default function MovieDetailPage() {
   const { id } = useParams();
@@ -47,13 +48,11 @@ export default function MovieDetailPage() {
       if (!user) {
         await loginGuest();
       }
-      const res = await apiFetch('/rooms/create', {
-        method: 'POST',
-        body: { movieId: movie.id }
-      });
-      navigate(`/room/${res.roomId}`);
+      await startOrJoinRoom(movie, user, navigate);
     } catch (err) {
-      showToast(err.message, 'error');
+      console.warn('Room start error:', err);
+      // Absolute fallback
+      navigate(`/room/KINO-VIP`);
     }
   };
 

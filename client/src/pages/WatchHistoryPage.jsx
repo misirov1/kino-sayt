@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { Clock, Play, Trash2, Film, ArrowRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { startOrJoinRoom } from '../utils/roomHelper';
 
 export default function WatchHistoryPage() {
   const { user, setIsAuthModalOpen } = useAuth();
@@ -35,13 +36,11 @@ export default function WatchHistoryPage() {
 
   const handleResume = async (movieId) => {
     try {
-      const res = await apiFetch('/rooms/create', {
-        method: 'POST',
-        body: { movieId }
-      });
-      navigate(`/room/${res.roomId}`);
+      const historyItem = history.find(h => h.movieId === movieId);
+      const movieObj = historyItem ? { id: movieId, title: historyItem.movieTitle, poster: historyItem.moviePoster } : { id: movieId };
+      await startOrJoinRoom(movieObj, user, navigate);
     } catch (err) {
-      showToast(err.message, 'error');
+      navigate('/room/KINO-VIP');
     }
   };
 

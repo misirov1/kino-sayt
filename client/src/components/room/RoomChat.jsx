@@ -28,12 +28,25 @@ export default function RoomChat({ roomId, onSendReaction }) {
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!inputText.trim()) return;
+    const text = inputText.trim();
+    if (!text) return;
 
-    socket.emit('room_chat_message', {
-      roomId,
-      text: inputText.trim()
-    });
+    const myMsg = {
+      id: 'msg_' + Date.now() + Math.random(),
+      userId: user?.id || 'usr_me',
+      userName: user?.name || 'Mehmon',
+      userAvatar: user?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80',
+      text,
+      createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, myMsg]);
+
+    try {
+      socket.emit('room_chat_message', {
+        roomId,
+        text
+      });
+    } catch (err) {}
 
     setInputText('');
   };

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { apiFetch } from '../utils/api';
+import { startOrJoinRoom } from '../utils/roomHelper';
 import { 
   Upload, Film, Clock, ShieldCheck, AlertCircle, 
   CheckCircle2, FolderUp, Lock, Trash2, Play 
@@ -173,13 +174,10 @@ export default function UploadMoviePage() {
 
   const handleWatchMovie = async (movieId) => {
     try {
-      const res = await apiFetch('/rooms/create', {
-        method: 'POST',
-        body: { movieId }
-      });
-      navigate(`/room/${res.roomId}`);
+      const userMovie = myUploads.find(m => m.id === movieId) || { id: movieId, title: 'Mening yuklagan videom' };
+      await startOrJoinRoom(userMovie, user, navigate);
     } catch (err) {
-      showToast(err.message || 'Xonaga kirishda xatolik yuz berdi', 'error');
+      navigate('/room/KINO-VIP');
     }
   };
 
