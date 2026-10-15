@@ -27,3 +27,5 @@ server/uploads/*.avi
 .vscode/
 .idea/
 *.log
+
+.vercel

@@ -6,7 +6,8 @@
     "start": "node server/src/index.js",
     "server": "node server/src/index.js",
     "client": "npm --prefix client run dev",
-    "build": "npm --prefix client run build",
+    "postinstall": "cd client && npm install",
+    "build": "cd client && npm install && npm run build",
     "seed": "node server/src/db/seed.js"
   },
   "keywords": ["kino", "cinema", "virtual-room", "uzbekistan", "socketio", "react"],

@@ -1,0 +1,20 @@
+# Large video files and local database
+server/uploads/
+server/data/
+*.mp4
+*.mkv
+*.webm
+*.avi
+
+# Dependencies & build outputs
+node_modules/
+client/node_modules/
+server/node_modules/
+client/dist/
+dist/
+
+# Environment & git
+.git/
+.env
+.env.*
+*.log
